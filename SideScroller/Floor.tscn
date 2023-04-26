@@ -1,0 +1,23 @@
+[gd_scene load_steps=4 format=2]
+
+[sub_resource type="QuadMesh" id=1]
+
+[sub_resource type="GradientTexture2D" id=2]
+
+[sub_resource type="RectangleShape2D" id=3]
+extents = Vector2( 512, 11.5 )
+
+[node name="Floor" type="Node2D"]
+
+[node name="MeshInstance2D" type="MeshInstance2D" parent="."]
+position = Vector2( 512, 11.5 )
+scale = Vector2( 1024, 23 )
+mesh = SubResource( 1 )
+texture = SubResource( 2 )
+
+[node name="StaticBody2D" type="StaticBody2D" parent="."]
+position = Vector2( 0, 0.5 )
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D"]
+position = Vector2( 512, 10.5 )
+shape = SubResource( 3 )
