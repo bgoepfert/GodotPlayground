@@ -32,6 +32,15 @@ align = 1
 valign = 1
 uppercase = true
 
+[node name="FlipGravityLabel" type="Label" parent="CanvasLayer"]
+anchor_right = 1.0
+margin_top = 52.0
+margin_bottom = 298.0
+text = "Flip Gravity Cooldown: "
+align = 1
+valign = 1
+uppercase = true
+
 [node name="Label2" type="Label" parent="CanvasLayer"]
 anchor_right = 1.0
 margin_left = 14.0
@@ -39,5 +48,6 @@ margin_bottom = 82.0
 text = "Controls:
 A = LEFT
 D = RIGHT
+F = FLIP GRAVITY
 SPACE = JUMP"
 valign = 1

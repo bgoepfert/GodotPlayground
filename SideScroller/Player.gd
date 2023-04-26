@@ -7,13 +7,15 @@ extends KinematicBody2D
 # - A Camera2D which is set to "current", so will be the active camera and will follow the player.
 # - A CanvasLayer for the UI with 2 labels showing the controls and players stamina.
 
-var _timer = null
+var stamina_regeneration_timer = null
+var flip_gravity_cooldown_timer = null
 
 const GRAVITY := 4500.0
 const SPEED := 450.0
 const JUMP_STRENGTH := 1000.0
 
 onready var stamina_label := $CanvasLayer/Label
+onready var flip_gravity_label := $CanvasLayer/FlipGravityLabel
 
 var velocity := Vector2.ZERO
 var jump_stamina_cost := 30.0
@@ -28,20 +30,41 @@ func _set_stamina(new_value: float) -> void:
 	stamina = clamp(new_value, 0.0, 100.0)
 
 func _ready():
-	_timer = Timer.new()
-	add_child(_timer)
+	stamina_regeneration_timer = Timer.new()
+	flip_gravity_cooldown_timer = Timer.new()
+	add_child(stamina_regeneration_timer)
+	add_child(flip_gravity_cooldown_timer)
 
-	_timer.connect("timeout", self, "_on_Timer_timeout")
-	_timer.set_wait_time(1.5)
-	_timer.set_one_shot(false) # Make sure it loops
-	_timer.start()
+	stamina_regeneration_timer.connect("timeout", self, "_on_StaminaRegen_timeout")
+	stamina_regeneration_timer.set_wait_time(1.5)
+	stamina_regeneration_timer.set_one_shot(false) # Make sure it loops
+	stamina_regeneration_timer.start()
+	
+	flip_gravity_cooldown_timer.set_wait_time(10.0)
+	flip_gravity_cooldown_timer.set_one_shot(true)
 
 
-func _on_Timer_timeout():
+func _on_StaminaRegen_timeout() -> void:
 	_set_stamina(stamina + 20.0)
 
 func _process(delta):
+	# Update variable labels every frame
 	stamina_label.text = "Stamina: " + str(stamina)
+	flip_gravity_label.text = "Flip Gravity Cooldown: " + str(int(flip_gravity_cooldown_timer.time_left))
+	
+	
+	# Listen for player pressing the flip_gravity input,
+	# which is set to the F key in the menu:
+	# Project -> Project Settings -> Input Map
+	if Input.is_action_just_pressed("flip_gravity") and flip_gravity_cooldown_timer.time_left == 0.0:
+		# Set players y velocity to 0 otherwise it will take time
+		# for the flipped gravity to negate the current accumulated gravity.
+		flip_gravity_cooldown_timer.start()
+		velocity.y = 0.0
+		if gravity_direction == Vector2.UP:
+			gravity_direction = Vector2.DOWN
+		elif gravity_direction == Vector2.DOWN:
+			gravity_direction = Vector2.UP
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _physics_process(delta):
